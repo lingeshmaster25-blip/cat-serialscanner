@@ -97,9 +97,9 @@ function createWindow() {
     loadActivationScreen(win);
   }
 
-  // TEMPORARY: force DevTools open in production too, to diagnose the
-  // "This page didn't load" error boundary. Remove this block once fixed.
-  win.webContents.openDevTools({ mode: "detach" });
+  if (isDev) {
+    win.webContents.openDevTools({ mode: "detach" });
+  }
 
   win.webContents.setWindowOpenHandler(({ url }) => {
     if (url.startsWith("http://") || url.startsWith("https://")) {
