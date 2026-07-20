@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data:;" />
+    <title>Activate EZI</title>
+    <link rel="stylesheet" href="activation.css" />
+  </head>
+  <body>
+    <div class="brand">
+      <img src="assets/cat-logo.png" alt="CAT" class="brand-logo" />
+      <div class="brand-text">
+        <div class="brand-name">EZI</div>
+        <div class="brand-sub">SERIAL NUMBER RECOGNITION SYSTEM</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h1>Activate Your License</h1>
+      <p class="intro">
+        This software requires a valid license key. Contact Trilo Automation
+        to get your key.
+      </p>
+
+      <label class="field-label">YOUR DEVICE ID</label>
+      <div class="device-row">
+        <input id="device-id" type="text" readonly spellcheck="false" />
+        <button id="copy-btn" type="button" class="btn-secondary">Copy</button>
+      </div>
+      <p class="hint">
+        Send this Device ID to Trilo Automation to receive your license key.
+      </p>
+
+      <label class="field-label" for="license-key">LICENSE KEY</label>
+      <input
+        id="license-key"
+        type="text"
+        placeholder="XXXX-XXXX-XXXX-XXXX"
+        maxlength="19"
+        autocomplete="off"
+        spellcheck="false"
+      />
+      <p id="error-msg" class="error" hidden></p>
+
+      <button id="activate-btn" type="button" class="btn-primary">Activate</button>
+    </div>
+
+    <div class="footer">
+      <span>POWERED BY</span>
+      <img src="assets/trilo-logo.png" alt="Trilo Automation" class="footer-logo" />
+      <span>| Trilo Automation</span>
+    </div>
+
+    <script src="activation.js"></script>
+  </body>
+</html>
