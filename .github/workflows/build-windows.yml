@@ -1,0 +1,48 @@
+name: Build Windows App
+
+# Runs on every push to main, on manual trigger, and on version tags.
+# Produces a Windows installer (.exe, NSIS) and a portable .exe as
+# downloadable artifacts — no local Windows machine needed.
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  workflow_dispatch: {}
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build web app (Vite)
+        run: npm run build
+
+      - name: Build Windows installer + portable exe
+        run: npx electron-builder --win --publish=never
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: EZI-Serial-Scanner-Windows
+          path: |
+            release/*.exe
+            release/*.blockmap
+          if-no-files-found: error
+
+      - name: Create GitHub Release (tags only)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release/*.exe
