@@ -1,5 +1,8 @@
 {
   "name": "serialscanner-mobile",
+  "version": "1.0.0",
+  "description": "EZI Serial Number Recognition System",
+  "author": "Trilo Automation",
   "private": true,
   "sideEffects": false,
   "type": "module",
