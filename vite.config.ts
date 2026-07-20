@@ -11,7 +11,7 @@ import obfuscatorPlugin from "vite-plugin-javascript-obfuscator";
 export default defineConfig({
   base: "./",
   plugins: [
-    TanStackRouterVite({ target: "react", autoCodeSplitting: true }),
+    TanStackRouterVite({ target: "react", autoCodeSplitting: false }),
     react(),
     tailwindcss(),
     tsconfigPaths(),
