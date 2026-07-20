@@ -71,6 +71,7 @@ function loadActivationScreen(win) {
 
 function createWindow() {
   const win = new BrowserWindow({
+    title: "EZI Serial Scanner",
     width: 1200,
     height: 850,
     minWidth: 480,
