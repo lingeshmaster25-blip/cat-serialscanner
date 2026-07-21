@@ -11,7 +11,9 @@ export const Route = createFileRoute("/")({
 
 // Added a "crop" phase between camera capture and OCR processing. The crop
 // is the single biggest accuracy/speed win for embossed plate scanning.
-// "partial" phase: scan found only serial OR only part — ask user to scan again.
+// "partial" phase: scan found only serial OR only part. Scanning the other
+// one is optional — the user can keep scanning or proceed with just what
+// was found, since some plates only ever show one of the two numbers.
 type Phase = "idle" | "camera" | "crop" | "processing" | "partial" | "review";
 
 function Index() {
@@ -108,23 +110,12 @@ function Index() {
       const finalPart   = accPart   || classified.part;
 
       if (finalSerial && finalPart) {
-        // ✓ Both found — proceed to review
-        const merged: OcrResult = {
-          ...result,
-          serial: finalSerial,
-          part: finalPart,
-          originalSerial: finalSerial,
-          originalPart: finalPart,
-        };
-        setOcr(merged);
-        setSerial(finalSerial);
-        setPart(finalPart);
-        // Clear accumulated state (no longer needed)
-        setAccSerial("");
-        setAccPart("");
-        setPhase("review");
+        // ✓ Both found — proceed to review automatically
+        finalizeResult(result, finalSerial, finalPart);
       } else {
-        // ✗ Missing at least one — save what we have and ask for rescan
+        // Missing one (or both) — not mandatory: show what was found so far
+        // and let the user either scan the missing one or proceed with just
+        // what's here (some plates only have a serial, or only a part number).
         setAccSerial(finalSerial);
         setAccPart(finalPart);
         setOcr(result);
@@ -135,6 +126,32 @@ function Index() {
       alert("OCR failed. Try again with better lighting or a tighter crop.");
       setPhase("crop");
     }
+  }
+
+  // Shared by both the auto-complete path (both fields found) and the
+  // "proceed anyway" path from the partial screen (user accepts just one).
+  function finalizeResult(base: OcrResult, finalSerial: string, finalPart: string) {
+    const merged: OcrResult = {
+      ...base,
+      serial: finalSerial,
+      part: finalPart,
+      originalSerial: finalSerial,
+      originalPart: finalPart,
+    };
+    setOcr(merged);
+    setSerial(finalSerial);
+    setPart(finalPart);
+    setAccSerial("");
+    setAccPart("");
+    setPhase("review");
+  }
+
+  // Scanning a second field (serial or part) is optional — some plates only
+  // ever show one of the two. This lets the user accept whatever was found
+  // so far instead of being forced to scan the missing field.
+  function proceedWithPartial() {
+    if (!ocr) return;
+    finalizeResult(ocr, accSerial, accPart);
   }
 
   function reset() {
@@ -299,7 +316,7 @@ function Index() {
           {/* What was found so far */}
           <div className="rounded-2xl border border-amber-500/40 bg-amber-500/10 p-5 space-y-4">
             <div className="text-amber-400 font-bold text-sm uppercase tracking-widest">
-              Incomplete — scan again
+              Partial match
             </div>
 
             {accSerial ? (
@@ -349,8 +366,8 @@ function Index() {
               {!accSerial && !accPart
                 ? "No numbers were detected. Point the camera directly at the embossed plate and ensure good lighting."
                 : !accSerial
-                ? "Scan the plate that shows the serial number (alphanumeric)."
-                : "Scan the plate that shows the part number (digits only)."}
+                ? "This plate only has a part number? Scan the serial number too, or proceed with just the part number below."
+                : "This plate only has a serial number? Scan the part number too, or proceed with just the serial number below."}
             </p>
             <button
               onClick={startCamera}
@@ -364,6 +381,17 @@ function Index() {
                 : "Scan part number"}
             </button>
           </div>
+
+          {/* Optional — not every plate has both numbers. Accept whichever
+              one was found instead of forcing a second scan. */}
+          {(accSerial || accPart) && (
+            <button
+              onClick={proceedWithPartial}
+              className="w-full inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-transparent px-5 py-3 font-semibold text-foreground hover:bg-secondary"
+            >
+              Proceed with {accSerial && accPart ? "scanned result" : accSerial ? "serial number only" : "part number only"}
+            </button>
+          )}
         </section>
       )}
 
